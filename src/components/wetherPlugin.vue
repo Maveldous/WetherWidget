@@ -6,8 +6,7 @@
      <p class="wetherPlugin__date">
        {{dataObject.dt | dateFilter}}
       </p>
-      <img 
-      :src="'http://openweathermap.org/img/wn/' + icon + '@2x.png'" alt="">
+      <div class="wetherPlugin__icon"><i :class="mainIcon"></i></div>
       <p class="wetherPlugin__wether">{{dataObject.weather[0].description}}</p>
       <div class="wetherPlugin__temperature">
         <p class="wetherPlugin__temperature-bigNum">{{dataObject.main.temp | conversionСelsius}}</p>
@@ -19,7 +18,22 @@
           {{dataObject.main.temp_min | conversionСelsius}}
         </p>
       </div>
-      <div class="wetherPlugin__weekMenu"></div>
+      <div class="wetherPlugin__weekMenu">
+        <button 
+          v-for="(item, index) of weekMenuArr" 
+          :key="index"
+          @click.prevent='curChoose = index' 
+          class="weekMenu__btn">
+          {{item.title}}
+        </button>
+        <div 
+          v-for="(item, index) of weekMenuArr" 
+          :key="index + item"
+          v-show="curChoose == index"
+          class="weekMenu__content">
+          {{item.content}}
+        </div>
+      </div>
    </div>
   </div>
 </template>
@@ -32,7 +46,37 @@ export default {
       dataObject: {
         dt: new Date()
       },
-      icon: '',
+      weekMenuArr: [
+        {
+          title: 'Hourly',
+          content: '1111111'
+        },
+        {
+          title: 'Daily',
+          content: '2222222'
+        },
+        {
+          title: 'Details',
+          content: '3333333'
+        },
+        {
+          title: 'Precipitation',
+          content: '444444444'
+        }
+      ],
+      iconsGet: {
+        '01d': 'fas fa-sun',
+        '02d': 'fas fa-cloud',
+        '03d': 'fas fa-cloud-sun',
+        '04d': 'fas fa-cloud-sun',
+        '09d': 'fas fa-cloud-meatball',
+        '10d': 'fas fa-cloud-rain',
+        '11d': 'fas fa-cloud-showers-heavy',
+        '13d': 'far fa-snowflake',
+        '50d': 'fas fa-smog'
+      },
+      mainIcon: '',
+      curChoose: 0,
       load: true
     }
   },
@@ -53,7 +97,9 @@ export default {
       .then( (data) =>{
         console.log(data);
         this.dataObject = data
-        this.icon = data.weather[0].icon
+        for (let key in this.iconsGet){
+          if (key == data.weather[0].icon) this.mainIcon = this.iconsGet[key];
+        }
         this.load = false
       })
   }
@@ -61,7 +107,8 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;1,100&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;1,100;1,300&display=swap');
+  @import url('https://pro.fontawesome.com/releases/v5.10.0/css/all.css');
 
   p{
     margin: 0;
@@ -76,15 +123,14 @@ export default {
 
     position: relative;
     width: 600px;
-    height: 395px;
     background: url('../assets/background1.png') no-repeat;
     border: none;
     border-radius: 5px;
-    background-size: contain;
+    background-size: cover;
     padding: 50px;
 
     &__wrapper{
-      height: 100%;
+
     }
 
     &__place, &__wether{
@@ -96,24 +142,27 @@ export default {
       font-size: 15px;
     }
 
+    &__icon{
+      font-size: 55px;
+      margin: 15px 0 -10px 0;
+    }
+
     &__wether{
-      margin-top: -30px;
+
     }
 
     &__temperature{
       position: absolute;
-      top: 30px;
+      top: 34px;
       right: 80px;
       text-align: center;
       font-weight: 100;
       &-bigNum{
-        font-size: 130px;
+        font-size: 110px;
         position: relative;
         &::after{
           content: '\00B0';
           position: absolute;
-          font-family: 'Roboto', sans-serif;
-          font-weight: 100;
           font-size: 80px;
           top: 0px;
         }
@@ -126,8 +175,6 @@ export default {
         &::after{
           content: '\00B0';
           position: absolute;
-          font-family: 'Roboto', sans-serif;
-          font-weight: 100;
           font-size: 30px;
           top: -5px;
         }
@@ -138,14 +185,40 @@ export default {
         margin-right: 10px;
       }
       .blue{
-        color: rgb(57, 140, 250);
+        color: rgb(76, 150, 247);
       }
     }
     &__weekMenu{
-      height: 50%;
-      border: 1px solid #fff;
+      margin-top: 40px;
+      height: 100px;
     }
   }
+
+  .weekMenu__btn{
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 16px;
+    cursor: pointer;
+    margin: 0 5px;
+  }
+
+  .weekMenu__content{
+    padding: 25px 11px;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
