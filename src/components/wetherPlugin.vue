@@ -6,7 +6,7 @@
      <p class="wetherPlugin__date">
        {{dataObject.dt | dateFilter}}
       </p>
-      <div class="wetherPlugin__icon"><i :class="mainIcon"></i></div>
+      <div class="wetherPlugin__icon"><i :class="convertIcon(dataObject.weather[0].icon)"></i></div>
       <p class="wetherPlugin__wether">{{dataObject.weather[0].description}}</p>
       <div class="wetherPlugin__temperature">
         <p class="wetherPlugin__temperature-bigNum">{{dataObject.main.temp | conversionСelsius}}</p>
@@ -22,7 +22,7 @@
         <button 
           v-for="(item, index) of weekMenuArr" 
           :key="index"
-          @click.prevent='curChoose = index' 
+          @click.prevent='switchStrip(index)' 
           class="weekMenu__btn">
           {{item.title}}
         </button>
@@ -31,7 +31,13 @@
           :key="index + item"
           v-show="curChoose == index"
           class="weekMenu__content">
-          {{item.content}}
+          <div v-for="(hourItem, hourIndex) of dataWeek" :key="hourIndex + 'hour'" class="weekMenu__content-item">
+            {{hourItem.dt | dateFilter}}
+            <div class="item__icon"><i :class="convertIcon(hourItem.weather[0].icon)"></i></div>
+            <p class="item-temp">
+              {{hourItem.temp | conversionСelsius}}  
+            </p>
+          </div>
         </div>
       </div>
    </div>
@@ -45,6 +51,12 @@ export default {
     return {
       dataObject: {
         dt: new Date()
+      },
+      dataBig: {
+
+      },
+      dataWeek: {
+
       },
       weekMenuArr: [
         {
@@ -88,6 +100,38 @@ export default {
       return (value - 273.15).toFixed(0)
     }
   },
+  methods: {
+    convertIcon: function(value){
+      for (let key in this.iconsGet){
+        if (key == value) return this.iconsGet[key];
+      }
+    },
+    switchStrip: function(index){
+      this.curChoose = index
+      switch (index) {
+        case 0:
+          if(this.dataWeek == this.dataBig.hourly.slice(0,6)) {break}
+          console.log(this.dataWeek == this.dataBig.hourly.slice(0,6));
+          this.dataWeek = this.dataBig.hourly.slice(0,6)
+          break;
+        case 1:
+          if(this.dataWeek === JSON.parse(JSON.stringify(this.dataBig.daily.slice(0,6)))) break
+          this.dataWeek = JSON.parse(JSON.stringify(this.dataBig.daily.slice(0,6)))
+          this.dataWeek.forEach(item => {
+            item.temp = item.temp.day
+          });
+          break;
+        case 2:
+          this.dataWeek = {}
+          break;
+        case 3:
+          this.dataWeek = {}
+          break;
+        default:
+          break;
+      }
+    }
+  },
   beforeCreate(){
     const URL = "http://api.openweathermap.org/data/2.5/weather?q=Odesa&appid=177acef01ac47358d30332c4f741e485"
     fetch(URL)
@@ -97,9 +141,13 @@ export default {
       .then( (data) =>{
         console.log(data);
         this.dataObject = data
-        for (let key in this.iconsGet){
-          if (key == data.weather[0].icon) this.mainIcon = this.iconsGet[key];
-        }
+        fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${data.coord.lat}&lon=${data.coord.lon}&exclude=minutely&appid=177acef01ac47358d30332c4f741e485`)
+          .then( responce => responce.json())
+          .then( dataNew => {
+            this.dataBig = dataNew
+            this.dataWeek = dataNew.hourly.slice(0,6)
+            console.log(this.dataWeek);
+          })
         this.load = false
       })
   }
@@ -204,13 +252,22 @@ export default {
   }
 
   .weekMenu__content{
-    padding: 25px 11px;
+    padding: 15px 5px;
+    text-align: center;
   }
 
+  .weekMenu__content-item{
+    display: inline-block;
+    // font-size: 20px;
+  }
 
+  .item__icon{
+    font-size: 30px;
+  }
 
-
-
+  .item-temp{
+    font-size: 20px;
+  }
 
 
 
