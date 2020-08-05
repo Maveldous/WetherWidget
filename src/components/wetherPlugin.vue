@@ -23,6 +23,7 @@
           v-for="(item, index) of weekMenuArr" 
           :key="index"
           @click.prevent='switchStrip(index)' 
+          :class="{'active': curChoose == index}"
           class="weekMenu__btn">
           {{item.title}}
         </button>
@@ -61,31 +62,36 @@ export default {
       weekMenuArr: [
         {
           title: 'Hourly',
-          content: '1111111'
         },
         {
           title: 'Daily',
-          content: '2222222'
         },
         {
           title: 'Details',
-          content: '3333333'
         },
         {
           title: 'Precipitation',
-          content: '444444444'
         }
       ],
       iconsGet: {
         '01d': 'fas fa-sun',
-        '02d': 'fas fa-cloud',
-        '03d': 'fas fa-cloud-sun',
+        '02d': 'fas fa-cloud-sun',
+        '03d': 'fas fa-cloud',
         '04d': 'fas fa-cloud-sun',
-        '09d': 'fas fa-cloud-meatball',
+        '09d': 'fas fa-cloud-showers-heavy',
         '10d': 'fas fa-cloud-rain',
-        '11d': 'fas fa-cloud-showers-heavy',
+        '11d': 'fas fa-bolt',
         '13d': 'far fa-snowflake',
-        '50d': 'fas fa-smog'
+        '50d': 'fas fa-smog',
+        '01n': 'fas fa-moon',
+        '02n': 'fas fa-cloud-moon',
+        '03n': 'fas fa-cloud',
+        '04n': 'fas fa-cloud-moon',
+        '09n': 'fas fa-cloud-showers-heavy',
+        '10n': 'fas fa-cloud-rain',
+        '11n': 'fas fa-bolt',
+        '13n': 'far fa-snowflake',
+        '50n': 'fas fa-smog',
       },
       mainIcon: '',
       curChoose: 0,
@@ -249,6 +255,9 @@ export default {
     font-size: 16px;
     cursor: pointer;
     margin: 0 5px;
+    &.active{
+      color: #fff;
+    }
   }
 
   .weekMenu__content{
