@@ -113,19 +113,20 @@ export default {
       }
     },
     switchStrip: function(index){
-      this.curChoose = index
+    this.curChoose = index
+    if(this.dataWeek.curState == this.curChoose) {return}
       switch (index) {
         case 0:
-          if(this.dataWeek == this.dataBig.hourly.slice(0,6)) {break}
-          console.log(this.dataWeek == this.dataBig.hourly.slice(0,6));
           this.dataWeek = this.dataBig.hourly.slice(0,6)
+          
+          this.dataWeek.curState = index
           break;
         case 1:
-          if(this.dataWeek === JSON.parse(JSON.stringify(this.dataBig.daily.slice(0,6)))) break
           this.dataWeek = JSON.parse(JSON.stringify(this.dataBig.daily.slice(0,6)))
           this.dataWeek.forEach(item => {
             item.temp = item.temp.day
           });
+          this.dataWeek.curState = index
           break;
         case 2:
           this.dataWeek = {}
