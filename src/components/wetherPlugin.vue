@@ -55,14 +55,9 @@ export default {
   data: function(){
     return {
       dataObject: {
-        dt: new Date()
       },
-      dataBig: {
-
-      },
-      dataMain: {
-
-      },
+      dataBig: {},
+      dataMain: {},
       weekMenuArr: [
         {
           title: 'Hourly',
@@ -96,6 +91,7 @@ export default {
       load: true
     }
   },
+  props: ['country'],
   filters: {
     dateFilter: function(value){
       return new Date(value).toString().substr(4, 11)
@@ -130,8 +126,8 @@ export default {
         }
       }
   },
-  beforeCreate(){
-    const URL = "http://api.openweathermap.org/data/2.5/weather?q=Odesa&appid=177acef01ac47358d30332c4f741e485"
+  mounted(){
+    const URL = "http://api.openweathermap.org/data/2.5/weather?q="+ this.country+"&appid=177acef01ac47358d30332c4f741e485"
     fetch(URL)
       .then(responce => responce.json())
       .then(data => {
@@ -282,8 +278,8 @@ export default {
   @media (max-width: 500px){
       .wetherPlugin{
         max-width: 350px;
-        height: 400px;
-        padding: 30px;
+        height: 370px;
+        padding: 25px;
         &__temperature{
           top: 34px;
           right: 40px;
