@@ -127,7 +127,7 @@ export default {
       }
   },
   mounted(){
-    const URL = "http://api.openweathermap.org/data/2.5/weather?q="+ this.country+"&appid=177acef01ac47358d30332c4f741e485"
+    const URL = "https://api.openweathermap.org/data/2.5/weather?q="+ this.country+"&appid=177acef01ac47358d30332c4f741e485"
     fetch(URL)
       .then(responce => responce.json())
       .then(data => {
