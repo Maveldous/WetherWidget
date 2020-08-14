@@ -32,8 +32,12 @@
           :key="index + item"
           v-show="curChoose == index"
           class="weekMenu__content">
-          <div v-for="(hourItem, hourIndex) of dataWeek" :key="hourIndex + 'hour'" class="weekMenu__content-item">
-            {{hourItem.dt | dateFilter}}
+          <div 
+            v-for="(hourItem, hourIndex) of dataMain" 
+            :key="hourIndex + 'hour'" 
+            class="weekMenu__content-item"
+            >
+            {{hourItem.dt}}
             <div class="item__icon"><i :class="convertIcon(hourItem.weather[0].icon)"></i></div>
             <p class="item-temp">
               {{hourItem.temp | conversionСelsius}}  
@@ -56,7 +60,7 @@ export default {
       dataBig: {
 
       },
-      dataWeek: {
+      dataMain: {
 
       },
       weekMenuArr: [
@@ -66,12 +70,6 @@ export default {
         {
           title: 'Daily',
         },
-        {
-          title: 'Details',
-        },
-        {
-          title: 'Precipitation',
-        }
       ],
       iconsGet: {
         '01d': 'fas fa-sun',
@@ -100,10 +98,10 @@ export default {
   },
   filters: {
     dateFilter: function(value){
-      return new Date(value).toISOString().substr(0, 10)
+      return new Date(value).toString().substr(4, 11)
     },
     conversionСelsius: function(value){
-      return (value - 273.15).toFixed(0)
+      return (value - 273.15).toFixed(0) + ''
     }
   },
   methods: {
@@ -113,49 +111,46 @@ export default {
       }
     },
     switchStrip: function(index){
-    this.curChoose = index
-    if(this.dataWeek.curState == this.curChoose) {return}
-      switch (index) {
-        case 0:
-          this.dataWeek = this.dataBig.hourly.slice(0,6)
-          
-          this.dataWeek.curState = index
-          break;
-        case 1:
-          this.dataWeek = JSON.parse(JSON.stringify(this.dataBig.daily.slice(0,6)))
-          this.dataWeek.forEach(item => {
-            item.temp = item.temp.day
-          });
-          this.dataWeek.curState = index
-          break;
-        case 2:
-          this.dataWeek = {}
-          break;
-        case 3:
-          this.dataWeek = {}
-          break;
-        default:
-          break;
+      this.curChoose = index;
+      if(this.dataMain.curState == this.curChoose) {return}
+        switch (index) {
+          case 0:
+            this.dataMain = this.dataBig.hourly.slice(0,6)
+            this.dataMain.curState = index
+            break;
+          case 1:
+            this.dataMain = JSON.parse(JSON.stringify(this.dataBig.daily.slice(0,6)))
+            this.dataMain.forEach(item => {
+              item.temp = item.temp.day
+            });
+            this.dataMain.curState = index
+            break;
+          default:
+            break;
+        }
       }
-    }
   },
   beforeCreate(){
     const URL = "http://api.openweathermap.org/data/2.5/weather?q=Odesa&appid=177acef01ac47358d30332c4f741e485"
     fetch(URL)
-      .then( (responce) => {
-        return responce.json()
-      })
-      .then( (data) =>{
-        console.log(data);
+      .then(responce => responce.json())
+      .then(data => {
+        // console.log(data); 
+        data.dt = new Date();
         this.dataObject = data
         fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${data.coord.lat}&lon=${data.coord.lon}&exclude=minutely&appid=177acef01ac47358d30332c4f741e485`)
           .then( responce => responce.json())
           .then( dataNew => {
+            //dataBig - массив со всем прогнозом включая часы, дни и недели
             this.dataBig = dataNew
-            this.dataWeek = dataNew.hourly.slice(0,6)
-            console.log(this.dataWeek);
+            this.dataMain = this.dataBig.hourly.slice(0,6);
+            this.dataMain.forEach((elem,index) => elem.dt = new Date().getHours() + 1 + index + 'pm')
+            // console.log(this.dataBig);
+            this.load = false
+            this.dataBig.daily
+              .slice(0,6)
+              .forEach((elem,index) => elem.dt = new Date().getDate() + index + 'th')
           })
-        this.load = false
       })
   }
 };
@@ -177,16 +172,13 @@ export default {
     color: #fff;
 
     position: relative;
-    width: 600px;
+    max-width: 600px;
+    height: 400px;
     background: url('../assets/background1.png') no-repeat;
     border: none;
-    border-radius: 5px;
+    border-radius: 20px;
     background-size: cover;
     padding: 50px;
-
-    &__wrapper{
-
-    }
 
     &__place, &__wether{
       font-size: 30px;
@@ -201,11 +193,6 @@ export default {
       font-size: 55px;
       margin: 15px 0 -10px 0;
     }
-
-    &__wether{
-
-    }
-
     &__temperature{
       position: absolute;
       top: 34px;
@@ -249,6 +236,8 @@ export default {
     }
   }
 
+  //accordione styles
+
   .weekMenu__btn{
     background: transparent;
     border: none;
@@ -264,11 +253,13 @@ export default {
   .weekMenu__content{
     padding: 15px 5px;
     text-align: center;
+    display: flex;
+    justify-content: space-around;
   }
 
   .weekMenu__content-item{
     display: inline-block;
-    // font-size: 20px;
+    font-size: 20px;
   }
 
   .item__icon{
@@ -277,16 +268,51 @@ export default {
 
   .item-temp{
     font-size: 20px;
+    position: relative;
+    &::after{
+      content: '\00B0';
+      position: absolute;
+      font-size: 20px;
+      top: -3px;
+    }
   }
 
+//adaptive
 
-
-
-
-
-
-
-
+  @media (max-width: 500px){
+      .wetherPlugin{
+        max-width: 350px;
+        height: 400px;
+        padding: 30px;
+        &__temperature{
+          top: 34px;
+          right: 40px;
+          &-bigNum{
+            font-size: 80px;
+            right: 0;
+            &::after{
+              font-size: 40px;
+            }
+          }
+          &-smallNum{
+            font-size: 25px;
+            margin-right: 5px;
+            &::after{
+              font-size: 20px;
+            }
+          }
+          &-symbol{
+            font-size: 25px;
+          }
+        }
+      }
+      .weekMenu__content-item{
+        font-size: 15px;
+      }
+      .weekMenu__content{
+        justify-content: space-between;
+      }
+  }
 
 
 //Loader
