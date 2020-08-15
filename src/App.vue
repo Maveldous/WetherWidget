@@ -6,7 +6,7 @@
     </article>
     <article class="ref__demo article">
         <h1 class="ref__demo-title title">Demonstration</h1>
-        <wetherPlugin country="Kyiv" />
+        <wetherPlugin country="Odesa" />
       </article>
       <article class="ref__documentation article">
           <h1 class="ref__documentation-title title">Documentation</h1>

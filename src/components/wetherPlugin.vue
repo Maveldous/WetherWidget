@@ -131,7 +131,6 @@ export default {
     fetch(URL)
       .then(responce => responce.json())
       .then(data => {
-        // console.log(data); 
         data.dt = new Date();
         this.dataObject = data
         fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${data.coord.lat}&lon=${data.coord.lon}&exclude=minutely&appid=177acef01ac47358d30332c4f741e485`)
@@ -140,12 +139,18 @@ export default {
             //dataBig - массив со всем прогнозом включая часы, дни и недели
             this.dataBig = dataNew
             this.dataMain = this.dataBig.hourly.slice(0,6);
-            this.dataMain.forEach((elem,index) => elem.dt = new Date().getHours() + 1 + index + 'pm')
-            // console.log(this.dataBig);
+            //установка времени
+            this.dataMain.forEach((elem,index) => elem.dt = 
+            (new Date().getHours() + 1 + index > 24) 
+            ? new Date().getHours() + 1 + index - 24 + 'pm' 
+            : new Date().getHours() + index + 1 + 'pm' )
             this.load = false
             this.dataBig.daily
               .slice(0,6)
-              .forEach((elem,index) => elem.dt = new Date().getDate() + index + 'th')
+              .forEach((elem,index) => elem.dt = 
+              (new Date().getDate() + index > 30)
+              ? new Date().getDate() + index - 30 + 'th'
+              : new Date().getDate() + index + 'th')
           })
       })
   }
